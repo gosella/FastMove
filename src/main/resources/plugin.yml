@@ -1,0 +1,10 @@
+name: FastMove
+main: io.github.gosella.fastmove.Main
+version: 1.0.0
+commands:
+  do:
+    description: Do something
+  box:
+    description: Create a box at chunk (0, 4, 0)
+  move!:
+    description: Move the player chunk
