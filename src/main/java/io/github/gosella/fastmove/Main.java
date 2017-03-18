@@ -65,9 +65,12 @@ public class Main extends JavaPlugin {
 
             Chunk chunk = world.getChunkProvider().getChunkAt(x >> 4, z >> 4);
             ChunkSection section = chunk.getSections()[y >> 4];
-            List<TileEntity> entities = new ArrayList<TileEntity>(chunk.getTileEntities().values());
+            List<TileEntity> tileEntities = new ArrayList<TileEntity>(chunk.getTileEntities().values());
             List<Entity>[] entitySlices = chunk.getEntitySlices();
-
+            List<Entity> entitySlice = entitySlices[y >> 4];
+            for (Entity entity : entitySlice) {
+                getLogger().info("Entity: " + entity);
+            }
 
 //            DataPaletteBlock blocks = section.getBlocks();
 //
@@ -157,19 +160,21 @@ public class Main extends JavaPlugin {
 
             ChunkSection section = chunk.getSections()[y >> 4];
 
-//            DataPaletteBlock blocks = section.getBlocks();
-//            long[] bits = blocks.b.a();
-//            IBlockData b = net.minecraft.server.v1_11_R1.Block.REGISTRY_ID.fromId(2);
-//            IBlockData b = blocks.a(2, 1, 2);
-//            IBlockData b = Blocks.REDSTONE_WIRE.getBlockData().set(BlockRedstoneWire.POWER, new Integer(10));
-//            blocks.setBlock(2, 5, 2, b);
-
             for(int yy = 1; yy < 15; ++yy) {
                 for(int zz = 1; zz < 15; ++zz) {
                     if (!section.getType(1, yy, zz).equals(Blocks.AIR.getBlockData())) {
-                        sender.sendMessage(ChatColor.RED + "Can't move past the border of this Chunk! (yet)");
+                        sender.sendMessage(ChatColor.RED + "Can't move blocks past the border of this Chunk! (yet)");
                         return true;
                     }
+                }
+            }
+
+            List<Entity>[] entitySlices = chunk.getEntitySlices();
+            List<Entity> entitySlice = entitySlices[y >> 4];
+            for (Entity entity : entitySlice) {
+                if (entity.getChunkX() == 15) {
+                    sender.sendMessage(ChatColor.RED + "Can't move entities past the border of this Chunk! (yet)");
+                    return true;
                 }
             }
 
@@ -231,19 +236,13 @@ public class Main extends JavaPlugin {
                 chunk.tileEntities.put(position, entity);
             }
 
-//            BlockPosition p1 = new BlockPosition( 8, 65, 1);
-//            BlockPosition p2 = new BlockPosition(10, 65, 1);
-//            TileEntity entity1 = entities.get(p1);
-//            TileEntity entity2 = entities.get(p2);
-//            entity1.setPosition(p2);
-//            entities.put(p2, entity1);
-//            entity2.setPosition(p1);
-//            entities.put(p1, entity2);
-
+            for (Entity entity : entitySlice) {
+                entity.setPosition(entity.getX() - 1, entity.getY(), entity.getZ());
+            }
 
             chunk.e();
 
-            PacketPlayOutMapChunk pmc = new PacketPlayOutMapChunk(chunk, 1 << 4);
+            PacketPlayOutMapChunk pmc = new PacketPlayOutMapChunk(chunk, 1 << (y >> 4));
             player.getHandle().playerConnection.sendPacket(pmc);
 
             sender.sendMessage(ChatColor.GOLD + "Done!");
