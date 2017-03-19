@@ -16,9 +16,6 @@ import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 
 import java.util.*;
 
-/**
- * Created by german on 17/01/17.
- */
 public class Main extends JavaPlugin {
 
     @Override
@@ -52,57 +49,61 @@ public class Main extends JavaPlugin {
 //            change.block = newBlock;
 //            sender.sendMessage(ChatColor.AQUA + "Block changed to: " + change.block);
 
-//            int x = block.getX();
-//            int y = block.getY() + 4;
-//            int z = block.getZ();
+//            int playerX = block.getX();
+//            int playerY = block.getY() + 4;
+//            int playerZ = block.getZ();
 //
-//            sender.sendMessage(ChatColor.AQUA + "Placing blocks at @ (" + x + ", " + y + ", " + z + ")");
+//            sender.sendMessage(ChatColor.AQUA + "Placing blocks at @ (" + playerX + ", " + playerY + ", " + playerZ + ")");
 
             Location location = player.getLocation();
-            int x = location.getBlockX();
-            int y = location.getBlockY();
-            int z = location.getBlockZ();
+            int playerX = location.getBlockX();
+            int playerY = location.getBlockY();
+            int playerZ = location.getBlockZ();
 
-            Chunk chunk = world.getChunkProvider().getChunkAt(x >> 4, z >> 4);
-            ChunkSection section = chunk.getSections()[y >> 4];
-            List<TileEntity> tileEntities = new ArrayList<TileEntity>(chunk.getTileEntities().values());
+            int chunkX = playerX >> 4;
+            int chunkY = playerY >> 4;
+            int chunkZ = playerZ >> 4;
+
+            Chunk chunk = world.getChunkProvider().getChunkAt(chunkX, chunkZ);
+            Chunk nextChunk = world.getChunkProvider().getChunkAt(chunkX - 1, chunkZ);
+
             List<Entity>[] entitySlices = chunk.getEntitySlices();
-            List<Entity> entitySlice = entitySlices[y >> 4];
+            List<Entity> entitySlice = entitySlices[chunkY];
             for (Entity entity : entitySlice) {
-                getLogger().info("Entity: " + entity);
+                getLogger().info("Entity: " + entity + " - " + entity.locX + " -> " + entity.getChunkX());
             }
 
 //            DataPaletteBlock blocks = section.getBlocks();
 //
 //            short[] coords = new short[6];
 //
-//            x &= 15;
-//            z &= 15;
-//            int yy = y & 15;
-//            blocks.setBlock(x, yy, z, newBlock);
-//            coords[0] = (short)(x << 12 | z << 8 | y);
+//            playerX &= 15;
+//            playerZ &= 15;
+//            int yy = playerY & 15;
+//            blocks.setBlock(playerX, yy, playerZ, newBlock);
+//            coords[0] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
-//            x -= 1;
-//            blocks.setBlock(x, yy, z, newBlock);
-//            coords[1] = (short)(x << 12 | z << 8 | y);
+//            playerX -= 1;
+//            blocks.setBlock(playerX, yy, playerZ, newBlock);
+//            coords[1] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
-//            x += 2;
-//            blocks.setBlock(x, yy, z, newBlock);
-//            coords[2] = (short)(x << 12 | z << 8 | y);
+//            playerX += 2;
+//            blocks.setBlock(playerX, yy, playerZ, newBlock);
+//            coords[2] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
-//            x -= 1;
-//            z -= 1;
-//            blocks.setBlock(x, yy, z, newBlock);
-//            coords[3] = (short)(x << 12 | z << 8 | y);
+//            playerX -= 1;
+//            playerZ -= 1;
+//            blocks.setBlock(playerX, yy, playerZ, newBlock);
+//            coords[3] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
-//            z += 2;
-//            blocks.setBlock(x, yy, z, newBlock);
-//            coords[4] = (short)(x << 12 | z << 8 | y);
+//            playerZ += 2;
+//            blocks.setBlock(playerX, yy, playerZ, newBlock);
+//            coords[4] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
-//            z -= 1;
-//            y += 1;
-//            blocks.setBlock(x, yy+1, z, newBlock);
-//            coords[5] = (short)(x << 12 | z << 8 | y);
+//            playerZ -= 1;
+//            playerY += 1;
+//            blocks.setBlock(playerX, yy+1, playerZ, newBlock);
+//            coords[5] = (short)(playerX << 12 | playerZ << 8 | playerY);
 //
 //            PacketPlayOutMultiBlockChange changes = new PacketPlayOutMultiBlockChange(coords.length, coords, chunk);
 //
@@ -152,51 +153,75 @@ public class Main extends JavaPlugin {
             CraftPlayer player = (CraftPlayer) sender;
             WorldServer world = ((CraftWorld) player.getWorld()).getHandle();
             Location location = player.getLocation();
-            int x = location.getBlockX();
-            int y = location.getBlockY();
-            int z = location.getBlockZ();
+            int playerX = location.getBlockX();
+            int playerY = location.getBlockY();
+            int playerZ = location.getBlockZ();
 
-            Chunk chunk = world.getChunkProvider().getChunkAt(x >> 4, z >> 4);
+            // La idea es mover 5x5x5 bloques alrededor del player
 
-            ChunkSection section = chunk.getSections()[y >> 4];
+//            int[] srcPos = new int[5*5*5*3];
+//            int p = 0;
+//            for (int z = playerZ - 2; z <= playerZ + 2; ++z) {
+//                for (int y = playerY - 2; y <= playerY + 2; ++y) {
+//                    for (int x = playerX - 2; x <= playerX + 2; ++x) {
+//                        srcPos[p] = x;
+//                        srcPos[p+1] = y;
+//                        srcPos[p+2] = z;
+//                        p += 3;
+//                    }
+//                }
+//            }
+//
+//            int[] dstPos = new int[srcPos.length];
+//            p = 0;
+//            for (int z = playerZ - 2; z <= playerZ + 2; ++z) {
+//                for (int y = playerY - 2; y <= playerY + 2; ++y) {
+//                    for (int x = playerX - 2; x <= playerX + 2; ++x) {
+//                        srcPos[p] = x;
+//                        dstPos[p] = x - 1;
+//                        srcPos[p+1] = y;
+//                        dstPos[p+1] = y;
+//                        srcPos[p+2] = z;
+//                        dstPos[p+2] = z;
+//                        p += 3;
+//                    }
+//                }
+//            }
 
-            for(int yy = 1; yy < 15; ++yy) {
-                for(int zz = 1; zz < 15; ++zz) {
-                    if (!section.getType(1, yy, zz).equals(Blocks.AIR.getBlockData())) {
-                        sender.sendMessage(ChatColor.RED + "Can't move blocks past the border of this Chunk! (yet)");
-                        return true;
-                    }
-                }
-            }
 
-            List<Entity>[] entitySlices = chunk.getEntitySlices();
-            List<Entity> entitySlice = entitySlices[y >> 4];
-            for (Entity entity : entitySlice) {
-                if (entity.getChunkX() == 15) {
-                    sender.sendMessage(ChatColor.RED + "Can't move entities past the border of this Chunk! (yet)");
-                    return true;
-                }
-            }
+            int chunkX = playerX >> 4;
+            int chunkY = playerY >> 4;
+            int chunkZ = playerZ >> 4;
+
+            Chunk chunk = world.getChunkProvider().getChunkAt(chunkX, chunkZ);
+            ChunkSection section = chunk.getSections()[chunkY];
+
+            Chunk nextChunk = world.getChunkProvider().getChunkAt(chunkX - 1, chunkZ);
+            ChunkSection nextSection = nextChunk.getSections()[chunkY];
 
             IBlockData b;
-            for(int xx = 1; xx < 14; ++xx) {
-                for(int yy = 1; yy < 15; ++yy) {
-                    for(int zz = 1; zz < 15; ++zz) {
-                        b = section.getType(xx + 1 , yy, zz);
-                        section.setType(xx, yy, zz, b);
-//                        section.setType(xx, yy, pxx, Blocks.AIR.getBlockData());
+            for(int yy = 0; yy < 16; ++yy) {
+                for(int zz = 0; zz < 16; ++zz) {
+                    b = section.getType(0, yy, zz);
+                    if (!b.equals(Blocks.AIR.getBlockData())) {
+                        nextSection.setType(15, yy, zz, b);
                     }
                 }
             }
 
-            b = Blocks.AIR.getBlockData();
-            for(int yy = 1; yy < 15; ++yy) {
-                for(int zz = 1; zz < 15; ++zz) {
-                    section.setType(14, yy, zz, b);
+            for(int yy = 0; yy < 16; ++yy) {
+                for(int zz = 0; zz < 16; ++zz) {
+                    for(int xx = 0; xx < 15; ++xx) {
+                        b = section.getType(xx + 1 , yy, zz);
+                        section.setType(xx, yy, zz, b);
+                    }
+                    section.setType(15, yy, zz, Blocks.AIR.getBlockData());
                 }
             }
 
             section.recalcBlockCounts();
+            nextSection.recalcBlockCounts();
+
 
             List<NextTickListEntry> entries = world.a(chunk, true);
             if (entries != null) {
@@ -211,38 +236,39 @@ public class Main extends JavaPlugin {
                 }
             }
 
-
-//            List<NextTickListEntry> entries = world.a(chunk, false);  // con true borra los ticks retornados
-//
-//            StructureBoundingBox bb = new StructureBoundingBox(1, 1, 1, 15, 15, 15);
-//            List<NextTickListEntry> entries = world.a(bb, false);  // con true borra los ticks retornados
-//
-//            if (entries != null) {
-//                for (NextTickListEntry entry : entries) {
-//                    world.b(entry.a.a(0, 0, 0), entry.a(), (int)(entry.b - world.worldData.getTime()), entry.c);
-//                }
-//            }
-
-            List<TileEntity> entities = new ArrayList<TileEntity>(chunk.tileEntities.values());
+            List<TileEntity> tileEntities = new ArrayList<TileEntity>(chunk.tileEntities.values());
             chunk.tileEntities.clear();
-            for (TileEntity entity: entities) {
-                BlockPosition position = entity.getPosition();
+            for (TileEntity tileEntity: tileEntities) {
+                BlockPosition position = tileEntity.getPosition();
                 final int positionY = position.getY();
                 if (positionY > 64 && positionY < 79) {
                     // inside the ChunkSection of interest
                     position = position.a(-1, 0, 0);
-                    entity.setPosition(position);
+                    tileEntity.setPosition(position);
                 }
-                chunk.tileEntities.put(position, entity);
+                chunk.tileEntities.put(position, tileEntity);
             }
 
-            for (Entity entity : entitySlice) {
+
+            List<Entity>[] entitySlices = chunk.getEntitySlices();
+            List<Entity> entitySlice = entitySlices[chunkY];
+            List<Entity> entities = new ArrayList<Entity>(entitySlice);
+
+            for (Entity entity : entities) {
+                int ex = MathHelper.floor(entity.getX());
                 entity.setPosition(entity.getX() - 1, entity.getY(), entity.getZ());
+                if (ex == 0) {
+                    chunk.a(entity, chunkY);
+                    nextChunk.a(entity);
+                }
             }
 
             chunk.e();
+            nextChunk.e();
 
-            PacketPlayOutMapChunk pmc = new PacketPlayOutMapChunk(chunk, 1 << (y >> 4));
+            PacketPlayOutMapChunk pmc = new PacketPlayOutMapChunk(nextChunk, 1 << chunkY);
+            player.getHandle().playerConnection.sendPacket(pmc);
+            pmc = new PacketPlayOutMapChunk(chunk, 1 << chunkY);
             player.getHandle().playerConnection.sendPacket(pmc);
 
             sender.sendMessage(ChatColor.GOLD + "Done!");
