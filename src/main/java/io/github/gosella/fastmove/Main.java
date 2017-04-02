@@ -64,7 +64,7 @@ public class Main extends JavaPlugin {
                     ((CraftWorld) player.getWorld()).getHandle(),
 //                    player.getLocation().getBlockX() & ~15
                     player.getLocation().getBlockX() - 1
-            ).runTaskTimer(this, 20, 20);
+            ).runTaskTimer(this, 90, 15);
 //            ).runTask(this);
 
 
