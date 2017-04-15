@@ -1,12 +1,12 @@
 package io.github.gosella.fastmove;
 
-import net.minecraft.server.v1_11_R1.*;
+import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -58,8 +58,12 @@ public class Main extends JavaPlugin {
                     player,
                     ((CraftWorld) player.getWorld()).getHandle(),
 //                    player.getLocation().getBlockX() & ~15
-                    player.getLocation().getBlockX() - 1
-            ).runTaskTimer(this, 40, 10);
+                    player.getLocation().getBlockX() - 1,
+//                    player.getLocation().getBlockY() & ~15,
+                    player.getLocation().getBlockY() - 1,
+//                    player.getLocation().getBlockZ() & ~15
+                    player.getLocation().getBlockZ() - 1
+            ).runTaskTimer(this, 40, 30);
 //            ).runTask(this);
 
 
@@ -166,7 +170,7 @@ public class Main extends JavaPlugin {
             return true;
         } else if (label.equalsIgnoreCase("box")) {
             WorldServer world = ((CraftWorld) getServer().getWorld("world")).getHandle();
-            IBlockData bedrock = net.minecraft.server.v1_11_R1.Block.getByCombinedId(7);// minecraft:bedrock
+            IBlockData bedrock = net.minecraft.server.v1_10_R1.Block.getByCombinedId(7);// minecraft:bedrock
             Chunk chunk = world.getChunkProvider().getChunkAt(0, 0);
             ChunkSection section = chunk.getSections()[4];
             DataPaletteBlock blocks = section.getBlocks();

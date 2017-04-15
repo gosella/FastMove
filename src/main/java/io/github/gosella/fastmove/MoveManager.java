@@ -1,8 +1,8 @@
 package io.github.gosella.fastmove;
 
-import net.minecraft.server.v1_11_R1.*;
+import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -16,21 +16,21 @@ public class MoveManager extends BukkitRunnable {
     private int posZ;
     private int count;
 
-    public MoveManager(Main plugin, CraftPlayer player, World world, int posX) {
+    public MoveManager(Main plugin, CraftPlayer player, World world, int posX, int posY, int posZ) {
         this.plugin = plugin;
         this.player = player;
         this.world = world;
         this.posX = posX;
-        this.posY = 6 << 4;
-        this.posZ = 4 << 4;
-        this.count = 32;
+        this.posY = posY;
+        this.posZ = posZ;
+        this.count = 16;
     }
 
     private ChunkSection getSection(Chunk chunk, int chunkY) {
         ChunkSection[] sections = chunk.getSections();
         ChunkSection section = sections[chunkY];
         if (section == Chunk.a) {
-            section = new ChunkSection(chunkY << 4, this.world.worldProvider.m());
+            section = new ChunkSection(chunkY << 4, !this.world.worldProvider.m());
             sections[chunkY] = section;
         }
         return section;
@@ -134,11 +134,11 @@ public class MoveManager extends BukkitRunnable {
         IChunkProvider chunkProvider = world.getChunkProvider();
 
 
-        int lenX = 16;
-        int lenY = 16;
-        int lenZ = 16;
+        int lenX = 16 * 9;
+        int lenY = 16 * 3;
+        int lenZ = 16 * 3;
 
-        int deltaX = -1;
+        int deltaX = -5;
         int deltaY = 0;
         int deltaZ = 0;
 
@@ -179,9 +179,9 @@ public class MoveManager extends BukkitRunnable {
         final int dstFromSectionY = dstFromY >> 4;
         final int dstToSectionY = (dstToY >> 4) + 1;
 
-        this.plugin.getLogger().info("Moviendo chunks " +
-                "desde (" + srcFromX + ", " + srcFromY + ", " + srcFromZ + ") " +
-                "hasta (" + dstFromX + ", " + dstFromY + ", " + dstFromZ + ")");
+//        this.plugin.getLogger().info("Moviendo chunks " +
+//                "desde (" + srcFromX + ", " + srcFromY + ", " + srcFromZ + ") " +
+//                "hasta (" + dstFromX + ", " + dstFromY + ", " + dstFromZ + ")");
 
         /////////////////////////////////////
         //                                 //
@@ -310,13 +310,13 @@ public class MoveManager extends BukkitRunnable {
 
                     // Mueve los bloques desde el chunk de origen al chunk de destino.
 
-                    this.plugin.getLogger().info("Moviendo " +
-                            "[" + srcChunk.locX + ":" + srcSectionY + ":" + srcChunk.locZ + "] " +
-                            "(" + srcBeginX + ", " + srcBeginZ + ", " + srcBeginY +
-                            ") - ( " + srcEndX + ", " + srcEndZ + ", " + srcEndY + ") hasta " +
-                            "[" + dstChunk.locX + ":" + dstSectionY + ":" + dstChunk.locZ + "] " +
-                            "(" + dstBeginX + ", " + dstBeginZ + ", " + dstBeginY +
-                            ") - ( " + dstEndX + ", " + dstEndZ + ", " + dstEndY + ").");
+//                    this.plugin.getLogger().info("Moviendo " +
+//                            "[" + srcChunk.locX + ":" + srcSectionY + ":" + srcChunk.locZ + "] " +
+//                            "(" + srcBeginX + ", " + srcBeginZ + ", " + srcBeginY +
+//                            ") - ( " + srcEndX + ", " + srcEndZ + ", " + srcEndY + ") hasta " +
+//                            "[" + dstChunk.locX + ":" + dstSectionY + ":" + dstChunk.locZ + "] " +
+//                            "(" + dstBeginX + ", " + dstBeginZ + ", " + dstBeginY +
+//                            ") - ( " + dstEndX + ", " + dstEndZ + ", " + dstEndY + ").");
 
                     boolean modified = false;
                     for (int syy = srcBeginY, dyy = dstBeginY; syy < srcEndY; ++syy, ++dyy) {
@@ -329,10 +329,14 @@ public class MoveManager extends BukkitRunnable {
                                 // Copy Block Type and Data
                                 b = srcSection.getType(sxx, syy, szz);
                                 dstSection.setType(dxx, dyy, dzz, b);
-                                // Copy Sky Light
-                                dstSection.a(dxx, dyy, dzz, srcSection.b(sxx, syy, szz));
                                 // Copy Emitted Light
                                 dstSection.b(dxx, dyy, dzz, srcSection.c(sxx, syy, szz));
+
+                                // TODO: eliminar esta comparación haciendo otro loop
+                                if (!this.world.worldProvider.m()) {
+                                    // Copy Sky Light
+                                    dstSection.a(dxx, dyy, dzz, srcSection.b(sxx, syy, szz));
+                                }
                             }
                         }
                     }
@@ -345,7 +349,7 @@ public class MoveManager extends BukkitRunnable {
             }
         }
 
-        this.plugin.getLogger().info("dirtySections: " + Arrays.toString(dirtySections));
+//        this.plugin.getLogger().info("dirtySections: " + Arrays.toString(dirtySections));
 
         // worldserver.b contiene una lista de todas las TileEntities cargadas en el mundo.
         // chunk.tileEntities contiene solamente las entidades del chunk.
