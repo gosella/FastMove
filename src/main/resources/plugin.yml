@@ -8,3 +8,5 @@ commands:
     description: Create a box at chunk (0, 4, 0)
   move!:
     description: Move the player chunk
+  detect:
+    description: Detect a blob

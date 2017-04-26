@@ -23,7 +23,7 @@ public class MoveManager extends BukkitRunnable {
         this.posX = posX;
         this.posY = posY;
         this.posZ = posZ;
-        this.count = 16;
+        this.count = 48;
     }
 
     private ChunkSection getSection(Chunk chunk, int chunkY) {
@@ -134,9 +134,9 @@ public class MoveManager extends BukkitRunnable {
         IChunkProvider chunkProvider = world.getChunkProvider();
 
 
-        int lenX = 16 * 9;
-        int lenY = 16 * 3;
-        int lenZ = 16 * 3;
+        int lenX = 32; // 16 * 9;
+        int lenY = 16; // 16 * 3;
+        int lenZ = 16; // 16 * 3;
 
         int deltaX = -5;
         int deltaY = 0;
